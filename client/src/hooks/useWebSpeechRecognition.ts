@@ -30,9 +30,11 @@ export function useWebSpeechRecognition(language: string = 'en-US'): UseWebSpeec
     const [error, setError] = useState<string | null>(null);
 
     const recognitionRef = useRef<any>(null);
+    const isListeningRef = useRef<boolean>(false);
 
     const stop = useCallback(() => {
         if (recognitionRef.current) {
+            isListeningRef.current = false;
             recognitionRef.current.stop();
             setIsListening(false);
         }
@@ -84,13 +86,21 @@ export function useWebSpeechRecognition(language: string = 'en-US'): UseWebSpeec
             // Handle errors
             recognition.onerror = (event: any) => {
                 console.error('Speech recognition error:', event.error);
-                setError(`Recognition error: ${event.error}`);
+                
+                // Don't show error for aborted (happens when user stops manually)
+                if (event.error !== 'aborted') {
+                    setError(`Recognition error: ${event.error}`);
+                }
 
                 // Try to restart on certain errors
                 if (event.error === 'no-speech' || event.error === 'audio-capture') {
                     setTimeout(() => {
-                        if (recognitionRef.current && isListening) {
-                            recognitionRef.current.start();
+                        if (recognitionRef.current && isListeningRef.current) {
+                            try {
+                                recognitionRef.current.start();
+                            } catch (err) {
+                                console.error('Failed to restart after error:', err);
+                            }
                         }
                     }, 1000);
                 }
@@ -98,12 +108,24 @@ export function useWebSpeechRecognition(language: string = 'en-US'): UseWebSpeec
 
             // Handle end
             recognition.onend = () => {
+                console.log('Recognition ended, isListening:', isListeningRef.current);
                 // Auto-restart if still supposed to be listening
-                if (isListening && recognitionRef.current) {
+                if (isListeningRef.current && recognitionRef.current) {
                     try {
+                        console.log('Auto-restarting recognition...');
                         recognitionRef.current.start();
                     } catch (err) {
                         console.error('Failed to restart recognition:', err);
+                        // If restart fails, try again after a short delay
+                        setTimeout(() => {
+                            if (isListeningRef.current && recognitionRef.current) {
+                                try {
+                                    recognitionRef.current.start();
+                                } catch (e) {
+                                    console.error('Failed to restart recognition after delay:', e);
+                                }
+                            }
+                        }, 500);
                     }
                 }
             };
@@ -111,13 +133,15 @@ export function useWebSpeechRecognition(language: string = 'en-US'): UseWebSpeec
             // Start recognition
             recognition.start();
             setIsListening(true);
+            isListeningRef.current = true;
 
         } catch (err) {
             const error = err as Error;
             setError(error?.message || String(err));
             console.error('Failed to start speech recognition:', err);
+            isListeningRef.current = false;
         }
-    }, [isListening, language]);
+    }, [language]);
 
     // Cleanup on unmount
     useEffect(() => {
