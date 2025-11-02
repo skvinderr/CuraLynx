@@ -1,10 +1,11 @@
 /* eslint-disable */
 // @ts-nocheck
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Filter, Plus, X, Activity, Users, Clock, TrendingUp, BarChart3, Calendar, DoorOpen, LogOut } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import Joyride, { STATUS } from 'react-joyride';
 
 type AppointmentType = "Consultation" | "Follow-up" | "Emergency" | "Checkup";
 type PatientStatus = "waiting" | "in-session" | "done";
@@ -36,6 +37,68 @@ export default function Dashboard() {
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [patientId, setPatientId] = useState("");
   const [status, setStatus] = useState<PatientStatus | "">("");
+  const [runTour, setRunTour] = useState(false);
+
+  // Check if user has seen the tour before
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('dashboardTourCompleted');
+    if (!hasSeenTour) {
+      // Start tour after a short delay
+      setTimeout(() => setRunTour(true), 1000);
+    }
+  }, []);
+
+  const tourSteps: any[] = [
+    {
+      target: 'body',
+      content: (
+        <div>
+          <h2 className="text-lg font-bold mb-2" style={{ color: '#5a7a5a' }}>Welcome to CuraLynx Dashboard! 👋</h2>
+          <p className="text-sm text-gray-600">Let me show you how to start taking appointments with your patients.</p>
+        </div>
+      ),
+      placement: 'center',
+      disableBeacon: true,
+    },
+    {
+      target: '.patient-card-first',
+      content: (
+        <div>
+          <h3 className="text-base font-bold mb-2" style={{ color: '#5a7a5a' }}>Patient Cards</h3>
+          <p className="text-sm text-gray-600">Here you can see all your patients for today with their details and status.</p>
+        </div>
+      ),
+      placement: 'right',
+    },
+    {
+      target: '.start-session-button',
+      content: (
+        <div>
+          <h3 className="text-base font-bold mb-2" style={{ color: '#5a7a5a' }}>Start Session 🎯</h3>
+          <p className="text-sm text-gray-600 mb-2">
+            Click the <strong>"Start"</strong> button to begin a consultation with a patient.
+          </p>
+          <p className="text-sm text-gray-600">
+            This will take you to the session page where you can:
+          </p>
+          <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+            <li>Record live transcriptions</li>
+            <li>Get AI-powered medication recommendations</li>
+            <li>Generate prescriptions</li>
+          </ul>
+        </div>
+      ),
+      placement: 'left',
+    },
+  ];
+
+  const handleJoyrideCallback = (data: any) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setRunTour(false);
+      localStorage.setItem('dashboardTourCompleted', 'true');
+    }
+  };
 
   const activeSessions = useMemo(() => patients.filter((p) => p.status === "in-session").length, [patients]);
   const waitingCount = useMemo(() => patients.filter((p) => p.status === "waiting").length, [patients]);
@@ -85,6 +148,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage-50 via-white to-sage-100" style={{ background: 'linear-gradient(to bottom right, #f0f4f0, #ffffff, #e8f0e8)' }}>
+      {/* Joyride Tour */}
+      <Joyride
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#5a7a5a',
+            zIndex: 10000,
+          },
+          buttonNext: {
+            backgroundColor: '#6a8a6a',
+            borderRadius: '8px',
+            padding: '8px 16px',
+          },
+          buttonBack: {
+            color: '#5a7a5a',
+            marginRight: '10px',
+          },
+          buttonSkip: {
+            color: '#8a8a8a',
+          },
+        }}
+      />
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-sage-200 shadow-sm" style={{ borderColor: '#d4e4d4' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -106,6 +197,18 @@ export default function Dashboard() {
                 <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#5a7a5a' }}></div>
                 <span className="text-sm font-medium" style={{ color: '#4a6a4a' }}>Live</span>
               </div>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('dashboardTourCompleted');
+                  setRunTour(true);
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all hover:bg-gray-50"
+                style={{ borderColor: '#b8d4b8', color: '#5a7a5a' }}
+                title="Restart tour"
+              >
+                <span className="text-lg">🎯</span>
+                <span className="hidden sm:inline">Tour</span>
+              </button>
               <button
                 onClick={() => navigate('/get-started')}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all hover:opacity-90"
@@ -260,8 +363,15 @@ export default function Dashboard() {
               </div>
               <div className="overflow-y-auto p-4" style={{ maxHeight: '600px', minHeight: '400px' }}>
                 <div className="space-y-3">
-                  {filtered.map((p) => (
-                    <PatientCard key={p.id} patient={p} onStart={onStart} onDone={onDone} onClick={() => handlePatientClick(p.id)} />
+                  {filtered.map((p, index) => (
+                    <PatientCard 
+                      key={p.id} 
+                      patient={p} 
+                      onStart={onStart} 
+                      onDone={onDone} 
+                      onClick={() => handlePatientClick(p.id)}
+                      isFirst={index === 0 && p.status === 'waiting'}
+                    />
                   ))}
                   {filtered.length === 0 && (
                     <div className="text-center py-12">
@@ -391,7 +501,13 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
   );
 }
 
-function PatientCard({ patient, onStart, onDone, onClick }: { patient: Patient; onStart: (id: string) => void; onDone: (id: string) => void; onClick: () => void }) {
+function PatientCard({ patient, onStart, onDone, onClick, isFirst }: { 
+  patient: Patient; 
+  onStart: (id: string) => void; 
+  onDone: (id: string) => void; 
+  onClick: () => void;
+  isFirst?: boolean;
+}) {
   const statusConfig = {
     waiting: { label: "Waiting", bg: '#fef9e7', text: '#8a7a4a', border: '#e8d4a4' },
     "in-session": { label: "In Session", bg: '#e8f4e8', text: '#4a6a4a', border: '#b8d4b8' },
@@ -410,7 +526,7 @@ function PatientCard({ patient, onStart, onDone, onClick }: { patient: Patient; 
 
   return (
     <div
-      className="bg-gradient-to-br from-white to-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all cursor-pointer"
+      className={`bg-gradient-to-br from-white to-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all cursor-pointer ${isFirst ? 'patient-card-first' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
@@ -444,7 +560,7 @@ function PatientCard({ patient, onStart, onDone, onClick }: { patient: Patient; 
                 e.stopPropagation();
                 onStart(patient.id);
               }}
-              className="px-3 py-1.5 text-white rounded-md text-sm font-medium transition-colors"
+              className={`px-3 py-1.5 text-white rounded-md text-sm font-medium transition-colors ${isFirst ? 'start-session-button' : ''}`}
               style={{ backgroundColor: '#6a8a6a' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a7a5a'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6a8a6a'}
