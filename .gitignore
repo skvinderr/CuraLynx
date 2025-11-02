@@ -1,0 +1,4 @@
+model/venv
+model/whisper_env
+server/node_modules
+client/.env
