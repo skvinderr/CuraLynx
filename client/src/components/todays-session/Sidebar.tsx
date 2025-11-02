@@ -179,7 +179,7 @@ const Sidebar = () => {
                 </div>
 
                 {/* Live Transcription Card */}
-                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm border border-[#7a9a7a]/20">
+                <div className="live-transcription-card bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm border border-[#7a9a7a]/20">
                     <div className="flex items-center mb-3">
                         <div className="flex items-center gap-2 flex-1">
                             <span className={`w-2 h-2 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-300'}`}></span>
