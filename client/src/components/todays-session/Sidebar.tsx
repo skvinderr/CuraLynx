@@ -31,6 +31,14 @@ const Sidebar = () => {
         setTranscript([]);
     }, [activePatient]);
 
+    // Auto-start listening when component mounts
+    useEffect(() => {
+        start();
+        return () => {
+            stop();
+        };
+    }, []);
+
     useEffect(() => {
         if (!finals || finals.length === 0) return;
         const last = finals[finals.length - 1];
