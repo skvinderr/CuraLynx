@@ -39,7 +39,7 @@ const LoginComponent = () => {
                     <div className="w-full max-w-md">
                         <div className="text-center lg:text-left">
                             <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Welcome Back</h2>
-                            <p className="text-gray-600 mb-8">Please sign in to your account</p>
+                            <p className="text-gray-600 mb-8">Please sign in using Guest Account Login Only</p>
                         </div>
 
                         <form className="space-y-6">
@@ -62,7 +62,7 @@ const LoginComponent = () => {
                             </div>
 
                             <div>
-                                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onClick={handleGuestLogin}>
                                     Sign In
                                 </button>
                             </div>
