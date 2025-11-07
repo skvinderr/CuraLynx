@@ -19,8 +19,34 @@ export default function App() {
         squares={[26, 26]}
       />
 
+      {/* HEADER */}
+      <header className="relative z-20 px-6 py-4">
+        <div className="mx-auto max-w-6xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl font-bold" style={{ color: '#5a7a5a' }}>
+              <span className="font-serif">CuraLynx</span>
+            </div>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
+            <Link to="/dashboard" className="text-sm font-medium text-gray-700 hover:text-[#5a7a5a] transition-colors">
+              Dashboard
+            </Link>
+            <Link to="/todays-session" className="text-sm font-medium text-gray-700 hover:text-[#5a7a5a] transition-colors">
+              Live Demo
+            </Link>
+            <Link 
+              to="/get-started"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
+              style={{ background: 'linear-gradient(to right, #5a7a5a, #7a9a7a)' }}
+            >
+              Get Started
+            </Link>
+          </nav>
+        </div>
+      </header>
+
       {/* HERO */}
-      <section className="relative z-10 px-6 pt-24 pb-16 sm:pt-28 sm:pb-24">
+      <section className="relative z-10 px-6 pt-16 pb-16 sm:pt-20 sm:pb-24">
         <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#b8d4b8] bg-white/70 px-3 py-1 text-xs backdrop-blur-sm">
