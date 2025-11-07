@@ -12,6 +12,7 @@ CuraLynx is an AI-powered clinical documentation assistant that transforms docto
 - **Workflow Automation**: Automates clinical workflows with intelligent task management
 - **Multi-language Support**: Built for Indian healthcare with English, Hindi, and code-mixed conversations
 
+
 ## 🌟 Key Features
 
 ### Real-time Intelligence
@@ -151,19 +152,6 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 - Accessible UI components
 - Smooth animations and transitions
 
-## 🔧 Development
-
-### Available Scripts
-
-```bash
-# Frontend development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run lint         # Run ESLint
-npm run preview      # Preview production build
-
-# Type checking
-npm run build:check  # TypeScript compilation check
 ```
 
 ### Project Structure
@@ -245,11 +233,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built for Indian healthcare systems and multilingual clinical conversations
 - Designed with input from practicing healthcare professionals
 - Powered by state-of-the-art AI and speech recognition technologies
-
-## 📞 Support
-
-For support, email support@curalynx.com or join our community discussions.
-
 ---
 
 **Team BODMAS** | *Transforming Healthcare Documentation*
