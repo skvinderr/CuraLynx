@@ -12,6 +12,7 @@ CuraLynx is an AI-powered clinical documentation assistant that transforms docto
 - **Workflow Automation**: Automates clinical workflows with intelligent task management
 - **Multi-language Support**: Built for Indian healthcare with English, Hindi, and code-mixed conversations
 
+
 ## 🌟 Key Features
 
 ### Real-time Intelligence
